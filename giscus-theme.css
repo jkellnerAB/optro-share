@@ -1,8 +1,6 @@
 /* ============================================================
    Optro Prototypes — custom giscus theme
-   Tuned to fit inside the right-rail glass panel.
-   Loaded by giscus inside its iframe; needs to live on a public,
-   CORS-enabled host (this file is served from jkellnerab.github.io).
+   v3 — flatter, fewer borders, hidden tabs/toolbar/poweredby
    ============================================================ */
 
 main {
@@ -103,54 +101,85 @@ main {
 }
 
 /* ----- Comments count: subheader styling ----- */
-.gsc-comments-count {
+.gsc-comments-count,
+.gsc-comments > h4,
+h4.gsc-comments-count {
   font-size: 10.5px !important;
   font-weight: 600 !important;
   color: var(--color-fg-subtle) !important;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   border: 0 !important;
+  text-decoration: none !important;
   padding: 0 0 8px !important;
   display: flex;
   align-items: center;
   gap: 6px;
 }
-
-/* "powered by giscus" — buried, smaller, dimmed */
-.gsc-poweredby {
-  font-size: 9.5px !important;
-  color: var(--color-fg-subtle) !important;
-  opacity: 0.55;
-  text-transform: none;
-  letter-spacing: 0;
-  font-weight: 400 !important;
+.gsc-comments-count a,
+.gsc-comments > h4 a {
+  text-decoration: none !important;
 }
 
-/* Sort buttons (Oldest / Newest) — softer */
-.gsc-comments-count + div .Button,
-.gsc-comments-count + div button {
+/* Hide "powered by giscus" entirely */
+.gsc-poweredby,
+a.gsc-poweredby,
+[class*="poweredby"] { display: none !important; }
+
+/* Hide "1 reply" / "N replies" indicator (replies are already shown below) */
+.gsc-comment-replies-count,
+.gsc-replies-count,
+[class*="replies-count"] { display: none !important; }
+
+/* Sort buttons (Oldest / Newest) — make compact like a small inline control.
+   Can't restructure to a real <select> dropdown via CSS, but we can shrink
+   to read like a compact toggle. */
+.gsc-comments > div:has(button[aria-label*="sort" i]),
+.gsc-comments-sort,
+[class*="comments-sort"],
+[class*="sort-by"] {
   font-size: 11px !important;
+}
+.gsc-comments > div:has(button[aria-label*="sort" i]) button,
+[class*="comments-sort"] button,
+[class*="sort-by"] button {
+  font-size: 11px !important;
+  padding: 3px 8px !important;
   border-radius: 6px !important;
+  border: 1px solid var(--color-border-default) !important;
+  background: transparent !important;
 }
 
 /* ----- Comments: flatter, no boxed look ----- */
 .gsc-comment,
 .gsc-reply {
   margin-top: 0 !important;
-  padding: 12px 0 !important;
+  padding: 10px 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 .gsc-comment {
-  border-bottom: 1px solid var(--color-border-muted);
+  border-bottom: 1px solid var(--color-border-muted) !important;
+}
+.gsc-comment:last-child {
+  border-bottom: 0 !important;
 }
 
 .gsc-comment > .gsc-tile,
 .gsc-reply > .gsc-tile,
-.gsc-tile {
+.gsc-tile,
+.gsc-tile-header,
+.gsc-tile-content,
+.gsc-comment-content {
   border: 0 !important;
   background: transparent !important;
   box-shadow: none !important;
   padding: 0 !important;
 }
+
+.gsc-comment-box-md-toolbar,
+.gsc-comment-box-preview { display: none !important; }
 
 .gsc-comment-header,
 .gsc-tile-header {
@@ -173,9 +202,19 @@ main {
 .gsc-comment-author:hover { text-decoration: underline; }
 
 .gsc-comment-edited-time,
-.gsc-comment-edited-by {
+.gsc-comment-edited-by,
+a.gsc-comment-edited-time,
+.gsc-comment-header a,
+.gsc-comment-header time {
   font-size: 11px;
   color: var(--color-fg-subtle) !important;
+  text-decoration: none !important;
+  font-weight: 400 !important;
+}
+.gsc-comment-edited-time:hover,
+a.gsc-comment-edited-time:hover {
+  text-decoration: none !important;
+  color: var(--color-fg-muted) !important;
 }
 
 /* Avatars */
@@ -210,6 +249,24 @@ main {
 }
 
 /* ----- Composer ----- */
+/* Hide Write/Preview tabs */
+.gsc-comment-box-tabs,
+[role="tablist"].gsc-comment-box-tabs,
+.gsc-comment-box > div[role="tablist"] {
+  display: none !important;
+}
+
+/* Hide the markdown toolbar / Aa button */
+.gsc-toolbar,
+.gsc-comment-box-toolbar,
+[class*="toolbar"] .gsc-tooltip,
+.gsc-comment-box-md-toolbar,
+.gsc-comment-box [aria-label="Markdown"],
+.gsc-comment-box [aria-label*="markdown" i],
+.gsc-comment-box [aria-label*="font" i] {
+  display: none !important;
+}
+
 .gsc-comment-box {
   border: 1px solid var(--color-border-default) !important;
   border-radius: 10px !important;
@@ -217,14 +274,11 @@ main {
   margin-top: 12px !important;
   overflow: hidden;
 }
-.gsc-comment-box-tabs {
-  border: 0 !important;
-  background: transparent !important;
-}
 .gsc-comment-box-textarea {
   border: 0 !important;
   background: transparent !important;
   font-size: 13px;
+  padding: 12px 14px !important;
 }
 .gsc-comment-box-bottom {
   border-top: 1px solid var(--color-border-muted) !important;
@@ -234,12 +288,32 @@ main {
   padding: 8px 10px !important;
 }
 
-/* Reply composer */
+/* Reply composer — flat, no box, just the input */
 .gsc-reply-box {
-  border: 1px solid var(--color-border-default) !important;
-  border-radius: 10px !important;
-  background: rgba(255,255,255,.5) !important;
-  margin-top: 6px;
+  border: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  margin-top: 4px !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+.gsc-reply-box .gsc-comment-box {
+  border: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  margin-top: 0 !important;
+}
+.gsc-reply-box .gsc-comment-box-textarea {
+  border-bottom: 1px solid var(--color-border-muted) !important;
+  padding: 6px 0 !important;
+  background: transparent !important;
+}
+.gsc-reply-box .gsc-comment-box-bottom {
+  border-top: 0 !important;
+  padding: 4px 0 !important;
+}
+.gsc-reply-box .gsc-comment-box-buttons {
+  padding: 4px 0 !important;
 }
 
 /* All buttons: our rounded radius */
