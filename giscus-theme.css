@@ -1,6 +1,7 @@
 /* ============================================================
    Optro Prototypes — custom giscus theme
-   v4 — targets real giscus class names (verified against bundle)
+   v5 — fix reactions alignment, anchor underline, replies-count,
+        smaller sort buttons aligned with header
    ============================================================ */
 
 main {
@@ -61,26 +62,32 @@ main {
 
 /* ---------- Reactions block ---------- */
 .gsc-reactions {
-  padding: 0 0 14px;
+  padding: 0 0 14px !important;
   border-bottom: 1px solid var(--color-border-muted);
   margin-bottom: 14px;
-  text-align: left;
+  text-align: left !important;
+  align-items: flex-start !important; /* left-align all rows in the column */
 }
 .gsc-reactions-count {
-  font-size: 10.5px;
-  font-weight: 600;
-  color: var(--color-fg-subtle);
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  color: var(--color-fg-subtle) !important;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  margin: 0 0 8px;
-  text-align: left;
-  border: 0;
-  padding: 0;
+  margin: 0 0 8px !important;
+  text-align: left !important;
+  border: 0 !important;
+  padding: 0 !important;
+  width: 100%;
 }
+.gsc-reactions-menu,
 .gsc-direct-reaction-buttons {
-  justify-content: flex-start;
-  gap: 6px;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  gap: 6px !important;
   flex-wrap: wrap;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
 }
 .gsc-direct-reaction-button {
   padding: 2px 9px !important;
@@ -90,7 +97,12 @@ main {
 }
 
 /* ---------- Comments header (count + sort) ---------- */
-.gsc-comments-count {
+.gsc-left-header,
+.gsc-right-header {
+  align-items: center !important;
+}
+.gsc-comments-count,
+h4.gsc-comments-count {
   font-size: 10.5px !important;
   font-weight: 600 !important;
   color: var(--color-fg-subtle) !important;
@@ -98,12 +110,25 @@ main {
   letter-spacing: 0.08em;
   border: 0 !important;
   text-decoration: none !important;
-  padding: 0 0 8px !important;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  padding: 0 !important;
+  margin: 0 !important;
 }
-.gsc-comments-count-separator { display: none; }
+/* The actual "3 comments" text is inside an <a> — kill the underline there */
+.gsc-comments-count a,
+.gsc-comments-count a:hover,
+.gsc-comments-count a:focus,
+.gsc-comments-count a:visited,
+.gsc-left-header a {
+  text-decoration: none !important;
+  color: inherit !important;
+}
+
+/* Hide the global "1 reply" count next to "3 comments" */
+.gsc-replies-count,
+h4.gsc-replies-count,
+.gsc-comments-count-separator {
+  display: none !important;
+}
 
 /* Hide "— powered by giscus" — it's an <em> with the giscus.app link */
 em a[href*="giscus.app"],
@@ -111,19 +136,31 @@ em.text-sm a[href*="giscus.app"] {
   display: none !important;
 }
 em.color-text-secondary,
-em.text-sm.color-text-secondary {
+em.text-sm.color-text-secondary,
+em.color-text-secondary.text-sm {
   display: none !important;
 }
 
-/* Sort buttons (Oldest / Newest) — BtnGroup-item, make compact */
+/* Sort buttons (Oldest / Newest) — smaller, vertically centered with header */
+.BtnGroup {
+  align-items: center !important;
+  vertical-align: middle !important;
+}
 .BtnGroup-item {
-  font-size: 10px !important;
-  padding: 1px 8px !important;
+  padding: 0 !important;
+  font-size: 9.5px !important;
+  border-radius: 4px !important;
+}
+.BtnGroup-item .btn,
+.BtnGroup-item button {
+  font-size: 9.5px !important;
+  padding: 1px 7px !important;
   font-weight: 500 !important;
   line-height: 1.5 !important;
   text-transform: none;
   letter-spacing: 0;
-  border-radius: 4px !important;
+  height: auto !important;
+  min-height: 0 !important;
 }
 
 /* ---------- Comments: flatten the box around each comment ---------- */
