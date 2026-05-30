@@ -1,7 +1,6 @@
 /* ============================================================
    Optro Prototypes — custom giscus theme
-   v6 — even spacing, grid-reordered reactions, no comment
-        dividers, selected sort state, centered reaction pills
+   v7 — hide upvote button (redundant with reactions)
    ============================================================ */
 
 /* Kill the default 2rem gap between .gsc-reactions and .gsc-comments
@@ -161,6 +160,9 @@ h4.gsc-replies-count,
 .gsc-comments-count-separator {
   display: none !important;
 }
+
+/* Hide the upvote button — redundant with reactions */
+.gsc-upvote-button { display: none !important; }
 
 /* Hide "— powered by giscus" — it's an <em> with the giscus.app link */
 em a[href*="giscus.app"],
