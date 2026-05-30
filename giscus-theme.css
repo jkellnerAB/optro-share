@@ -1,7 +1,7 @@
 /* ============================================================
    Optro Prototypes — custom giscus theme
-   v8 — verified flex order for reactions, overrode .color-text-primary
-        explicitly, blue selected state, zeroed footer indents
+   v9 — picker sits right after reactions, popover grows leftward,
+        solid white popover, hide popover header
    ============================================================ */
 
 /* Kill the default 2rem gap between .gsc-reactions and .gsc-comments
@@ -101,8 +101,8 @@ main {
   flex-wrap: wrap;
 }
 .gsc-reactions-menu {
-  order: 99 !important;          /* always last */
-  margin-left: auto !important;  /* push to far right */
+  order: 99 !important;          /* always last — sits after reactions */
+  margin-left: 0 !important;     /* no auto-push to far right */
 }
 .gsc-direct-reaction-button {
   display: inline-flex !important;
@@ -120,6 +120,52 @@ main {
   line-height: 1 !important;
   display: inline-flex !important;
   align-items: center !important;
+}
+
+/* ---------- Reactions popover (the "pick a reaction" picker) ---------- */
+/* Force popover to grow leftward from the trigger so it never clips
+   when the trigger is near the right edge of the panel. */
+.gsc-reactions-popover,
+.gsc-reactions-popover.left,
+.gsc-reactions-popover.right {
+  inset-inline-end: 0 !important;
+  inset-inline-start: auto !important;
+  right: 0 !important;
+  left: auto !important;
+}
+/* Solid white panel, matching our panel aesthetic */
+.gsc-reactions-popover {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border: 1px solid rgba(15,23,42,.12) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 12px 32px rgba(15,23,42,.18) !important;
+  width: auto !important;
+  min-width: 200px !important;
+  padding: 6px !important;
+}
+/* Hide the "Pick your reaction" header (first child) and its divider */
+.gsc-reactions-popover > :first-child,
+.gsc-reactions-popover > .color-border-primary {
+  display: none !important;
+}
+/* Emoji grid container — tighten it up */
+.gsc-reactions-popover > div.m-2 {
+  margin: 0 !important;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+.gsc-emoji-button {
+  border-radius: 6px !important;
+  padding: 6px !important;
+  background: transparent !important;
+  border: 0 !important;
+  cursor: pointer;
+  transition: background .12s;
+}
+.gsc-emoji-button:hover {
+  background: rgba(15,23,42,.06) !important;
 }
 
 /* ---------- Comments header (count + sort) ---------- */
