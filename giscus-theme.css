@@ -1,8 +1,13 @@
 /* ============================================================
    Optro Prototypes — custom giscus theme
-   v5 — fix reactions alignment, anchor underline, replies-count,
-        smaller sort buttons aligned with header
+   v6 — even spacing, grid-reordered reactions, no comment
+        dividers, selected sort state, centered reaction pills
    ============================================================ */
+
+/* Kill the default 2rem gap between .gsc-reactions and .gsc-comments
+   and the 1.5rem gap inside .gsc-comments — manage spacing ourselves */
+.gsc-main { gap: 0 !important; }
+.gsc-comments { gap: 12px !important; }
 
 main {
   /* Color tokens (Primer-style — propagate to giscus utility classes) */
@@ -60,43 +65,68 @@ main {
   color: var(--color-fg-default);
 }
 
-/* ---------- Reactions block ---------- */
+/* ---------- Reactions block ----------
+   Grid layout so we can put existing reactions on the left and the
+   add-reaction picker on the far right, both on the row below the
+   subheader. */
 .gsc-reactions {
-  padding: 0 0 14px !important;
-  border-bottom: 1px solid var(--color-border-muted);
-  margin-bottom: 14px;
+  display: grid !important;
+  grid-template-columns: 1fr auto !important;
+  grid-template-rows: auto auto !important;
+  gap: 8px 8px !important;
+  padding: 12px 0 14px !important;
+  margin: 0 !important;
+  border-bottom: 1px solid var(--color-border-muted) !important;
   text-align: left !important;
-  align-items: flex-start !important; /* left-align all rows in the column */
+  align-items: center;
 }
 .gsc-reactions-count {
+  grid-column: 1 / -1 !important;
+  grid-row: 1 !important;
   font-size: 10.5px !important;
   font-weight: 600 !important;
-  color: var(--color-fg-subtle) !important;
+  color: #94a3b8 !important;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  margin: 0 0 8px !important;
+  margin: 0 !important;
   text-align: left !important;
   border: 0 !important;
   padding: 0 !important;
-  width: 100%;
 }
-.gsc-reactions-menu,
 .gsc-direct-reaction-buttons {
+  grid-column: 1 !important;
+  grid-row: 2 !important;
   justify-content: flex-start !important;
-  text-align: left !important;
   gap: 6px !important;
   flex-wrap: wrap;
-  margin-left: 0 !important;
-  padding-left: 0 !important;
+}
+.gsc-reactions-menu {
+  grid-column: 2 !important;
+  grid-row: 2 !important;
+  justify-self: end !important;
 }
 .gsc-direct-reaction-button {
-  padding: 2px 9px !important;
+  display: inline-flex !important;
+  align-items: center !important;   /* was 'baseline' in giscus base */
+  justify-content: center !important;
+  line-height: 1 !important;
+  padding: 4px 10px !important;
   font-size: 11px !important;
   border-radius: 999px !important;
   border-color: var(--color-border-muted) !important;
+  gap: 4px;
+  vertical-align: middle;
+}
+.gsc-direct-reaction-button-emoji {
+  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
 }
 
 /* ---------- Comments header (count + sort) ---------- */
+.gsc-comments {
+  padding-top: 26px !important;
+}
 .gsc-left-header,
 .gsc-right-header {
   align-items: center !important;
@@ -105,7 +135,7 @@ main {
 h4.gsc-comments-count {
   font-size: 10.5px !important;
   font-weight: 600 !important;
-  color: var(--color-fg-subtle) !important;
+  color: #94a3b8 !important;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   border: 0 !important;
@@ -113,14 +143,16 @@ h4.gsc-comments-count {
   padding: 0 !important;
   margin: 0 !important;
 }
-/* The actual "3 comments" text is inside an <a> — kill the underline there */
+/* The actual "3 comments" text is inside an <a> — kill the underline AND
+   force same color as the heading (was inheriting a darker link color) */
 .gsc-comments-count a,
 .gsc-comments-count a:hover,
 .gsc-comments-count a:focus,
 .gsc-comments-count a:visited,
 .gsc-left-header a {
   text-decoration: none !important;
-  color: inherit !important;
+  color: #94a3b8 !important;
+  font-weight: 600 !important;
 }
 
 /* Hide the global "1 reply" count next to "3 comments" */
@@ -161,6 +193,15 @@ em.color-text-secondary.text-sm {
   letter-spacing: 0;
   height: auto !important;
   min-height: 0 !important;
+  color: #64748b !important;
+}
+/* Selected state — clearly active */
+.BtnGroup-item--selected .btn,
+.BtnGroup-item.BtnGroup-item--selected .btn,
+.BtnGroup-item--selected .btn:hover {
+  background: rgba(15,23,42,.08) !important;
+  color: #0f172a !important;
+  font-weight: 600 !important;
 }
 
 /* ---------- Comments: flatten the box around each comment ---------- */
@@ -175,14 +216,11 @@ em.color-text-secondary.text-sm {
 }
 .gsc-comment {
   margin-top: 0 !important;
-  padding: 10px 0 !important;
+  padding: 4px 0 !important;
   border: 0 !important;
   background: transparent !important;
   box-shadow: none !important;
-  border-bottom: 1px solid var(--color-border-muted) !important;
-}
-.gsc-comment:last-child {
-  border-bottom: 0 !important;
+  /* no horizontal divider between comments — visual breathing room only */
 }
 
 /* Hide the "1 reply" / "N replies" indicator */
