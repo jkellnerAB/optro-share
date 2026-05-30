@@ -1,6 +1,7 @@
 /* ============================================================
    Optro Prototypes — custom giscus theme
-   v7 — hide upvote button (redundant with reactions)
+   v8 — verified flex order for reactions, overrode .color-text-primary
+        explicitly, blue selected state, zeroed footer indents
    ============================================================ */
 
 /* Kill the default 2rem gap between .gsc-reactions and .gsc-comments
@@ -65,44 +66,43 @@ main {
 }
 
 /* ---------- Reactions block ----------
-   Grid layout so we can put existing reactions on the left and the
-   add-reaction picker on the far right, both on the row below the
-   subheader. */
+   Flex with order + margin-left:auto on the picker. Count gets
+   flex-basis 100% so it claims a full row by itself; the picker and
+   reactions wrap to the next line, with the picker pushed right. */
 .gsc-reactions {
-  display: grid !important;
-  grid-template-columns: 1fr auto !important;
-  grid-template-rows: auto auto !important;
-  gap: 8px 8px !important;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 6px !important;
   padding: 12px 0 14px !important;
   margin: 0 !important;
   border-bottom: 1px solid var(--color-border-muted) !important;
   text-align: left !important;
-  align-items: center;
 }
 .gsc-reactions-count {
-  grid-column: 1 / -1 !important;
-  grid-row: 1 !important;
+  flex: 1 0 100% !important;     /* full-width row */
+  order: 0 !important;
   font-size: 10.5px !important;
   font-weight: 600 !important;
   color: #94a3b8 !important;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  margin: 0 !important;
+  margin: 0 0 4px 0 !important;
   text-align: left !important;
   border: 0 !important;
   padding: 0 !important;
 }
 .gsc-direct-reaction-buttons {
-  grid-column: 1 !important;
-  grid-row: 2 !important;
+  order: 1 !important;
   justify-content: flex-start !important;
   gap: 6px !important;
   flex-wrap: wrap;
 }
 .gsc-reactions-menu {
-  grid-column: 2 !important;
-  grid-row: 2 !important;
-  justify-self: end !important;
+  order: 99 !important;          /* always last */
+  margin-left: auto !important;  /* push to far right */
 }
 .gsc-direct-reaction-button {
   display: inline-flex !important;
@@ -142,13 +142,19 @@ h4.gsc-comments-count {
   padding: 0 !important;
   margin: 0 !important;
 }
-/* The actual "3 comments" text is inside an <a> — kill the underline AND
-   force same color as the heading (was inheriting a darker link color) */
+/* The actual "3 comments" text is inside <a class="color-text-primary underline">.
+   That .color-text-primary class is what was making it dark — override it
+   explicitly here (same specificity, !important to ensure ordering wins). */
 .gsc-comments-count a,
+.gsc-comments-count a:link,
 .gsc-comments-count a:hover,
 .gsc-comments-count a:focus,
 .gsc-comments-count a:visited,
-.gsc-left-header a {
+.gsc-comments-count a.color-text-primary,
+.gsc-comments-count .color-text-primary,
+.gsc-comments-count .underline,
+.gsc-left-header a,
+.gsc-left-header .color-text-primary {
   text-decoration: none !important;
   color: #94a3b8 !important;
   font-weight: 600 !important;
@@ -197,12 +203,12 @@ em.color-text-secondary.text-sm {
   min-height: 0 !important;
   color: #64748b !important;
 }
-/* Selected state — clearly active */
+/* Selected state — light Optro blue (not gray, so it doesn't read as disabled) */
 .BtnGroup-item--selected .btn,
 .BtnGroup-item.BtnGroup-item--selected .btn,
 .BtnGroup-item--selected .btn:hover {
-  background: rgba(15,23,42,.08) !important;
-  color: #0f172a !important;
+  background: rgba(37,99,235,.10) !important;
+  color: #1d4ed8 !important;
   font-weight: 600 !important;
 }
 
@@ -232,10 +238,32 @@ em.color-text-secondary.text-sm {
 /* (left in for now; can hide later if you want) */
 
 /* ---------- Comment header (avatar, name, timestamp) ---------- */
-.gsc-comment-header {
+/* Zero out giscus's default 1rem horizontal padding so header, content,
+   and footer all align at the same left edge of the comment wrapper. */
+.gsc-comment-header,
+.gsc-reply-header {
   padding: 0 0 6px 0 !important;
   background: transparent !important;
   border: 0 !important;
+  margin: 0 !important;
+}
+.gsc-comment-content,
+.gsc-reply-content {
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+}
+.gsc-comment-footer,
+.gsc-reply-footer {
+  padding: 0 !important;
+  margin: 6px 0 0 0 !important;
+}
+.gsc-comment-reactions,
+.gsc-reply-reactions {
+  margin-inline-start: 0 !important;
+  margin-left: 0 !important;
+  padding: 0 !important;
+  justify-content: flex-start !important;
 }
 .gsc-comment-author {
   font-size: 12.5px;
