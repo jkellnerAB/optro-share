@@ -1,9 +1,9 @@
 /* ============================================================
    Optro Prototypes — custom giscus theme
-   v12 — flex+order with explicit width control for left alignment;
-         popover absolute-positioned with .gsc-main as the wider
-         containing block so it centers horizontally in the iframe
-         while staying vertically near the trigger
+   v13 — CSS Grid with explicit columns for reactions (auto auto 1fr).
+         Buttons and menu live in cols 1 and 2 (left), col 3 absorbs
+         the remaining space so the row is impossible to center.
+         Popover positioning kept from v12.
    ============================================================ */
 
 /* Kill the default 2rem gap between .gsc-reactions and .gsc-comments
@@ -68,32 +68,29 @@ main {
 }
 
 /* ---------- Reactions block ----------
-   Flex with order + ironclad left alignment.
-   .gsc-reactions becomes the popover containing block (position:relative)
-   so the popover can horizontally-center within the full iframe width. */
+   CSS Grid: row 1 has the subheader (spans both content columns),
+   row 2 has [buttons | menu | filler]. The filler column (1fr)
+   absorbs all remaining horizontal space, mathematically forcing
+   the buttons and menu to the left. */
 .gsc-reactions {
-  display: flex !important;
-  flex-direction: row !important;
-  flex-wrap: wrap !important;
-  justify-content: flex-start !important;
-  align-items: flex-start !important;
-  align-content: flex-start !important;
-  gap: 6px !important;
+  display: grid !important;
+  grid-template-columns: auto auto 1fr !important;
+  grid-template-rows: auto auto !important;
+  column-gap: 6px !important;
+  row-gap: 8px !important;
   padding: 12px 0 14px !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
   margin: 0 !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
   border-bottom: 1px solid var(--color-border-muted) !important;
   width: 100% !important;
   text-align: left !important;
   position: relative !important;          /* popover containing block */
+  justify-items: start !important;
+  align-items: center !important;
 }
 .gsc-reactions-count {
-  flex: 1 1 100% !important;              /* full-width row */
-  max-width: 100% !important;
-  order: 0 !important;
+  grid-row: 1 !important;
+  grid-column: 1 / -1 !important;          /* span full row */
+  justify-self: start !important;
   display: block !important;
   text-align: left !important;
   font-size: 10.5px !important;
@@ -101,27 +98,30 @@ main {
   color: #94a3b8 !important;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  margin: 0 0 8px 0 !important;
-  margin-left: 0 !important;
+  margin: 0 !important;
   padding: 0 !important;
-  padding-left: 0 !important;
   border: 0 !important;
 }
+/* DOM order is: count, menu, direct-reaction-buttons.
+   Grid placement: put direct-buttons in col 1 (left), menu in col 2,
+   filler is implicit col 3 (1fr). */
 .gsc-direct-reaction-buttons {
-  order: 1 !important;                    /* first on row 2 (left) */
+  grid-row: 2 !important;
+  grid-column: 1 !important;
+  justify-self: start !important;
   display: flex !important;
   flex-direction: row !important;
   justify-content: flex-start !important;
   align-items: center !important;
   gap: 6px !important;
   margin: 0 !important;
-  margin-left: 0 !important;
   padding: 0 !important;
-  padding-left: 0 !important;
   flex-wrap: wrap;
 }
 .gsc-reactions-menu {
-  order: 99 !important;                   /* last on row 2 (right of reactions) */
+  grid-row: 2 !important;
+  grid-column: 2 !important;
+  justify-self: start !important;
   display: inline-flex !important;
   align-items: center !important;
   margin: 0 !important;
