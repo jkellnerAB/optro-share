@@ -1,7 +1,9 @@
 /* ============================================================
    Optro Prototypes — custom giscus theme
-   v11 — block/inline layout for reliable left alignment;
-         popover always centered in iframe (no overflow possible)
+   v12 — flex+order with explicit width control for left alignment;
+         popover absolute-positioned with .gsc-main as the wider
+         containing block so it centers horizontally in the iframe
+         while staying vertically near the trigger
    ============================================================ */
 
 /* Kill the default 2rem gap between .gsc-reactions and .gsc-comments
@@ -66,18 +68,32 @@ main {
 }
 
 /* ---------- Reactions block ----------
-   Block parent with text-align:left. Inline-flex children flow
-   left-to-right starting at the parent's left edge — no flexbox
-   centering quirks possible. */
+   Flex with order + ironclad left alignment.
+   .gsc-reactions becomes the popover containing block (position:relative)
+   so the popover can horizontally-center within the full iframe width. */
 .gsc-reactions {
-  display: block !important;
-  text-align: left !important;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+  align-content: flex-start !important;
+  gap: 6px !important;
   padding: 12px 0 14px !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
   margin: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
   border-bottom: 1px solid var(--color-border-muted) !important;
   width: 100% !important;
+  text-align: left !important;
+  position: relative !important;          /* popover containing block */
 }
 .gsc-reactions-count {
+  flex: 1 1 100% !important;              /* full-width row */
+  max-width: 100% !important;
+  order: 0 !important;
   display: block !important;
   text-align: left !important;
   font-size: 10.5px !important;
@@ -86,25 +102,30 @@ main {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin: 0 0 8px 0 !important;
-  border: 0 !important;
+  margin-left: 0 !important;
   padding: 0 !important;
-  width: 100% !important;
+  padding-left: 0 !important;
+  border: 0 !important;
 }
 .gsc-direct-reaction-buttons {
-  display: inline-flex !important;
-  vertical-align: middle;
+  order: 1 !important;                    /* first on row 2 (left) */
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
   gap: 6px !important;
   margin: 0 !important;
+  margin-left: 0 !important;
   padding: 0 !important;
-  width: auto !important;
+  padding-left: 0 !important;
   flex-wrap: wrap;
 }
 .gsc-reactions-menu {
+  order: 99 !important;                   /* last on row 2 (right of reactions) */
   display: inline-flex !important;
-  vertical-align: middle;
-  margin: 0 0 0 6px !important;
+  align-items: center !important;
+  margin: 0 !important;
   padding: 0 !important;
-  width: auto !important;
 }
 .gsc-direct-reaction-button {
   display: inline-flex !important;
@@ -125,34 +146,67 @@ main {
 }
 
 /* ---------- Reactions popover ----------
-   Position fixed, centered horizontally AND vertically in the iframe.
-   This sidesteps every "popover overflows the edge" problem because
-   the popover is anchored to the iframe center, not to its trigger. */
+   Strategy: make a WIDER ancestor (.gsc-reactions or .gsc-comment-footer)
+   the popover's containing block instead of the narrow .gsc-reactions-menu.
+   Then "left: 50%; translateX(-50%)" centers the popover horizontally in
+   that wider parent (=roughly the iframe width). Vertical stays anchored
+   below the trigger because top:100% is relative to that wider ancestor,
+   which sits at the same vertical row as the trigger. */
+
+/* Override the base position:relative on the trigger so it's no longer
+   the containing block */
+.gsc-reactions-menu {
+  position: static !important;
+}
+
+/* New containing blocks: wider than the trigger so horizontal centering
+   actually centers in the iframe */
+.gsc-comment-footer {
+  position: relative !important;
+}
+.gsc-reply-footer {
+  position: relative !important;
+}
+/* .gsc-reactions is already position:relative from the reactions block above */
+
+/* The popover itself: absolute-positioned, centered horizontally in
+   the new containing block, anchored vertically below it. */
 .gsc-reactions-popover,
 .gsc-reactions-popover.left,
 .gsc-reactions-popover.right,
 .gsc-reactions-popover.top,
 .gsc-reactions-popover.bottom {
-  position: fixed !important;
-  top: 50% !important;
+  position: absolute !important;
+  top: calc(100% + 4px) !important;
   left: 50% !important;
   right: auto !important;
   bottom: auto !important;
-  inset-inline-start: auto !important;
+  inset-inline-start: 50% !important;
   inset-inline-end: auto !important;
-  inset: auto !important;
   margin: 0 !important;
-  transform: translate(-50%, -50%) !important;
+  /* Override the base transform that uses Tailwind CSS variables */
+  --tw-translate-x: -50% !important;
+  --tw-translate-y: 0 !important;
+  --tw-scale-x: 1 !important;
+  --tw-scale-y: 1 !important;
+  --tw-rotate: 0 !important;
+  --tw-skew-x: 0 !important;
+  --tw-skew-y: 0 !important;
+  transform: translateX(-50%) !important;
 }
 .gsc-reactions-popover.open,
 .gsc-reactions-popover.open.left,
 .gsc-reactions-popover.open.right,
 .gsc-reactions-popover.open.top,
 .gsc-reactions-popover.open.bottom {
-  transform: translate(-50%, -50%) !important;
+  --tw-translate-x: -50% !important;
+  --tw-translate-y: 0 !important;
+  --tw-scale-x: 1 !important;
+  --tw-scale-y: 1 !important;
+  transform: translateX(-50%) !important;
 }
 
-/* Solid white panel, matching our panel aesthetic */
+/* Visual styling */
 .gsc-reactions-popover {
   background: #ffffff !important;
   background-color: #ffffff !important;
