@@ -1,8 +1,8 @@
 /* ============================================================
    Optro Prototypes — custom giscus theme
-   v14 — CSS Grid with named template-areas. Most explicit possible
-         placement: buttons → "buttons" area, menu → "menu" area,
-         filler 1fr column absorbs slack. DOM order is irrelevant.
+   v15 — Both grid-area AND grid-row-start/grid-column-start for
+         redundancy. Single-line grid-template-areas to rule out
+         multi-line parsing issues with !important.
    ============================================================ */
 
 /* Kill the default 2rem gap between .gsc-reactions and .gsc-comments
@@ -67,19 +67,15 @@ main {
 }
 
 /* ---------- Reactions block ----------
-   CSS Grid with named template-areas. DOM order is count → menu → buttons,
-   but grid-area lets us place them explicitly regardless of DOM order:
-     row 1: count spans all columns
-     row 2: [buttons | menu | filler]
-   The 1fr filler column absorbs all remaining horizontal space, forcing
-   buttons and menu to hug the left. */
+   CSS Grid with explicit line-number placement (most explicit form).
+   Single-line grid-template-areas to avoid any multi-line parsing
+   weirdness with !important. Both grid-area AND grid-column-start
+   for redundancy. */
 .gsc-reactions {
   display: grid !important;
   grid-template-columns: auto auto 1fr !important;
   grid-template-rows: auto auto !important;
-  grid-template-areas:
-    "count count count"
-    "buttons menu filler" !important;
+  grid-template-areas: "count count count" "buttons menu filler" !important;
   column-gap: 6px !important;
   row-gap: 8px !important;
   padding: 12px 0 14px !important;
@@ -87,12 +83,16 @@ main {
   border-bottom: 1px solid var(--color-border-muted) !important;
   width: 100% !important;
   text-align: left !important;
-  position: relative !important;          /* popover containing block */
+  position: relative !important;
   justify-items: start !important;
   align-items: center !important;
 }
 .gsc-reactions-count {
   grid-area: count !important;
+  grid-row-start: 1 !important;
+  grid-row-end: 2 !important;
+  grid-column-start: 1 !important;
+  grid-column-end: 4 !important;
   justify-self: start !important;
   display: block !important;
   text-align: left !important;
@@ -107,6 +107,10 @@ main {
 }
 .gsc-direct-reaction-buttons {
   grid-area: buttons !important;
+  grid-row-start: 2 !important;
+  grid-row-end: 3 !important;
+  grid-column-start: 1 !important;
+  grid-column-end: 2 !important;
   justify-self: start !important;
   display: flex !important;
   flex-direction: row !important;
@@ -119,6 +123,10 @@ main {
 }
 .gsc-reactions-menu {
   grid-area: menu !important;
+  grid-row-start: 2 !important;
+  grid-row-end: 3 !important;
+  grid-column-start: 2 !important;
+  grid-column-end: 3 !important;
   justify-self: start !important;
   display: inline-flex !important;
   align-items: center !important;
