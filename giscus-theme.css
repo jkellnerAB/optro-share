@@ -1,8 +1,10 @@
 /* ============================================================
    Optro Prototypes — custom giscus theme
-   v15 — Both grid-area AND grid-row-start/grid-column-start for
-         redundancy. Single-line grid-template-areas to rule out
-         multi-line parsing issues with !important.
+   v16 — flex-direction: row-reverse trick. DOM is count→menu→buttons;
+         reversing visual order puts buttons first, menu second on
+         row 2. justify-content: flex-end (which means "left side" in
+         row-reverse) left-aligns the row. No grid placement props
+         that might be silently ignored.
    ============================================================ */
 
 /* Kill the default 2rem gap between .gsc-reactions and .gsc-comments
@@ -67,51 +69,44 @@ main {
 }
 
 /* ---------- Reactions block ----------
-   CSS Grid with explicit line-number placement (most explicit form).
-   Single-line grid-template-areas to avoid any multi-line parsing
-   weirdness with !important. Both grid-area AND grid-column-start
-   for redundancy. */
+   DOM order is: count → menu → direct-reaction-buttons.
+   Using flex-direction: row-reverse so DOM-last item (buttons) is
+   visually first (leftmost), DOM-middle item (menu) is to its right.
+   justify-content: flex-end with row-reverse = items pushed to the
+   LEFT side of the container (because the main-axis "end" is on the
+   left when reversed).
+   Count takes a full-width row via flex: 1 1 100%, so it lives on
+   its own line above. */
 .gsc-reactions {
-  display: grid !important;
-  grid-template-columns: auto auto 1fr !important;
-  grid-template-rows: auto auto !important;
-  grid-template-areas: "count count count" "buttons menu filler" !important;
+  display: flex !important;
+  flex-direction: row-reverse !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  align-content: flex-start !important;
   column-gap: 6px !important;
   row-gap: 8px !important;
   padding: 12px 0 14px !important;
   margin: 0 !important;
   border-bottom: 1px solid var(--color-border-muted) !important;
   width: 100% !important;
-  text-align: left !important;
   position: relative !important;
-  justify-items: start !important;
-  align-items: center !important;
 }
 .gsc-reactions-count {
-  grid-area: count !important;
-  grid-row-start: 1 !important;
-  grid-row-end: 2 !important;
-  grid-column-start: 1 !important;
-  grid-column-end: 4 !important;
-  justify-self: start !important;
-  display: block !important;
+  flex: 1 1 100% !important;
+  width: 100% !important;
   text-align: left !important;
+  display: block !important;
   font-size: 10.5px !important;
   font-weight: 600 !important;
   color: #94a3b8 !important;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  margin: 0 !important;
+  margin: 0 0 4px 0 !important;
   padding: 0 !important;
   border: 0 !important;
 }
 .gsc-direct-reaction-buttons {
-  grid-area: buttons !important;
-  grid-row-start: 2 !important;
-  grid-row-end: 3 !important;
-  grid-column-start: 1 !important;
-  grid-column-end: 2 !important;
-  justify-self: start !important;
   display: flex !important;
   flex-direction: row !important;
   justify-content: flex-start !important;
@@ -122,12 +117,6 @@ main {
   flex-wrap: wrap;
 }
 .gsc-reactions-menu {
-  grid-area: menu !important;
-  grid-row-start: 2 !important;
-  grid-row-end: 3 !important;
-  grid-column-start: 2 !important;
-  grid-column-end: 3 !important;
-  justify-self: start !important;
   display: inline-flex !important;
   align-items: center !important;
   margin: 0 !important;
