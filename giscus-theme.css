@@ -1,9 +1,8 @@
 /* ============================================================
    Optro Prototypes — custom giscus theme
-   v13 — CSS Grid with explicit columns for reactions (auto auto 1fr).
-         Buttons and menu live in cols 1 and 2 (left), col 3 absorbs
-         the remaining space so the row is impossible to center.
-         Popover positioning kept from v12.
+   v14 — CSS Grid with named template-areas. Most explicit possible
+         placement: buttons → "buttons" area, menu → "menu" area,
+         filler 1fr column absorbs slack. DOM order is irrelevant.
    ============================================================ */
 
 /* Kill the default 2rem gap between .gsc-reactions and .gsc-comments
@@ -68,14 +67,19 @@ main {
 }
 
 /* ---------- Reactions block ----------
-   CSS Grid: row 1 has the subheader (spans both content columns),
-   row 2 has [buttons | menu | filler]. The filler column (1fr)
-   absorbs all remaining horizontal space, mathematically forcing
-   the buttons and menu to the left. */
+   CSS Grid with named template-areas. DOM order is count → menu → buttons,
+   but grid-area lets us place them explicitly regardless of DOM order:
+     row 1: count spans all columns
+     row 2: [buttons | menu | filler]
+   The 1fr filler column absorbs all remaining horizontal space, forcing
+   buttons and menu to hug the left. */
 .gsc-reactions {
   display: grid !important;
   grid-template-columns: auto auto 1fr !important;
   grid-template-rows: auto auto !important;
+  grid-template-areas:
+    "count count count"
+    "buttons menu filler" !important;
   column-gap: 6px !important;
   row-gap: 8px !important;
   padding: 12px 0 14px !important;
@@ -88,8 +92,7 @@ main {
   align-items: center !important;
 }
 .gsc-reactions-count {
-  grid-row: 1 !important;
-  grid-column: 1 / -1 !important;          /* span full row */
+  grid-area: count !important;
   justify-self: start !important;
   display: block !important;
   text-align: left !important;
@@ -102,12 +105,8 @@ main {
   padding: 0 !important;
   border: 0 !important;
 }
-/* DOM order is: count, menu, direct-reaction-buttons.
-   Grid placement: put direct-buttons in col 1 (left), menu in col 2,
-   filler is implicit col 3 (1fr). */
 .gsc-direct-reaction-buttons {
-  grid-row: 2 !important;
-  grid-column: 1 !important;
+  grid-area: buttons !important;
   justify-self: start !important;
   display: flex !important;
   flex-direction: row !important;
@@ -119,8 +118,7 @@ main {
   flex-wrap: wrap;
 }
 .gsc-reactions-menu {
-  grid-row: 2 !important;
-  grid-column: 2 !important;
+  grid-area: menu !important;
   justify-self: start !important;
   display: inline-flex !important;
   align-items: center !important;
