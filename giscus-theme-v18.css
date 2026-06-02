@@ -1,0 +1,547 @@
+/* ============================================================
+   Optro Prototypes — custom giscus theme
+   v16 — flex-direction: row-reverse trick. DOM is count→menu→buttons;
+         reversing visual order puts buttons first, menu second on
+         row 2. justify-content: flex-end (which means "left side" in
+         row-reverse) left-aligns the row. No grid placement props
+         that might be silently ignored.
+   ============================================================ */
+
+/* Kill the default 2rem gap between .gsc-reactions and .gsc-comments
+   and the 1.5rem gap inside .gsc-comments — manage spacing ourselves */
+.gsc-main { gap: 0 !important; }
+.gsc-comments { gap: 12px !important; }
+
+main {
+  /* Color tokens (Primer-style — propagate to giscus utility classes) */
+  --color-canvas-default: transparent;
+  --color-canvas-overlay: rgba(255,255,255,.8);
+  --color-canvas-inset: transparent;
+  --color-canvas-subtle: transparent;
+
+  --color-border-default: rgba(15,23,42,.08);
+  --color-border-muted: rgba(15,23,42,.06);
+
+  --color-fg-default: #0f172a;
+  --color-fg-muted: #475569;
+  --color-fg-subtle: #94a3b8;
+  --color-fg-on-emphasis: #fff;
+
+  --color-accent-fg: #2563eb;
+  --color-accent-emphasis: #2563eb;
+  --color-accent-subtle: rgba(37,99,235,.08);
+  --color-accent-muted: rgba(37,99,235,.25);
+
+  /* Primary button (Comment) — Optro blue */
+  --color-btn-primary-text: #fff;
+  --color-btn-primary-bg: #2563eb;
+  --color-btn-primary-border: transparent;
+  --color-btn-primary-shadow: 0 1px 2px rgba(15,23,42,.06);
+  --color-btn-primary-inset-shadow: none;
+  --color-btn-primary-hover-bg: #1d4ed8;
+  --color-btn-primary-hover-border: transparent;
+  --color-btn-primary-selected-bg: #1e40af;
+  --color-btn-primary-disabled-bg: rgba(37,99,235,.4);
+  --color-btn-primary-disabled-text: #fff;
+  --color-btn-primary-icon: #fff;
+  --color-btn-primary-focus-shadow: 0 0 0 3px rgba(37,99,235,.22);
+
+  --color-btn-text: #475569;
+  --color-btn-bg: transparent;
+  --color-btn-border: rgba(15,23,42,.08);
+  --color-btn-shadow: none;
+  --color-btn-hover-bg: rgba(15,23,42,.05);
+  --color-btn-hover-border: rgba(15,23,42,.12);
+  --color-btn-active-bg: rgba(15,23,42,.07);
+  --color-btn-selected-bg: rgba(15,23,42,.07);
+  --color-btn-counter-bg: rgba(15,23,42,.08);
+
+  --color-input-bg: transparent;
+  --color-input-border: rgba(15,23,42,.08);
+
+  --color-social-reaction-bg-hover: rgba(15,23,42,.05);
+  --color-social-reaction-bg-reacted: rgba(37,99,235,.08);
+  --color-social-reaction-bg-reacted-hover: rgba(37,99,235,.15);
+
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  color: var(--color-fg-default);
+}
+
+/* ---------- Reactions block ----------
+   ACTUAL giscus DOM (verified against Giscus.tsx + ReactButtons.tsx + base.css):
+
+     .gsc-reactions                      (giscus base: flex-col)
+     ├── h4.gsc-reactions-count          "N REACTIONS"
+     └── div.flex.justify-center.gap-2   <-- UNNAMED WRAPPER (the only <div> child)
+         ├── details.gsc-reactions-menu        add-reaction trigger + popover
+         └── div.gsc-direct-reaction-buttons   the existing reaction pills
+
+   The trigger and pills are NOT direct children of .gsc-reactions — they live
+   inside that unnamed wrapper, which giscus gives Tailwind `justify-center`.
+   THAT wrapper is what was centering the row (earlier versions never targeted
+   it, which is why the row-reverse trick never worked).
+
+   Fix: keep .gsc-reactions a simple column (count stacked above the actions
+   row); left-align the wrapper; and use flex `order` to put the pills first
+   and the trigger to their right. Popover positioning below is untouched. */
+.gsc-reactions {
+  display: flex !important;
+  flex-direction: column !important;   /* count on its own line, actions row below */
+  align-items: stretch !important;
+  gap: 0 !important;
+  padding: 12px 0 14px !important;
+  margin: 0 !important;
+  border-bottom: 1px solid var(--color-border-muted) !important;
+  width: 100% !important;
+  position: relative !important;       /* containing block for the centered popover */
+}
+.gsc-reactions-count {
+  width: 100% !important;
+  text-align: left !important;
+  display: block !important;
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  color: #94a3b8 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 6px 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+/* THE FIX: the unnamed flex wrapper giscus renders around the trigger + pills.
+   It is the only <div> child of .gsc-reactions (its sibling is the <h4> count).
+   Giscus sets `justify-center` here — override to left-align. */
+.gsc-reactions > div {
+  justify-content: flex-start !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+}
+.gsc-direct-reaction-buttons {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  gap: 6px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex-wrap: wrap;
+  order: 0 !important;   /* existing reaction pills come first */
+}
+.gsc-reactions-menu {
+  display: inline-flex !important;
+  align-items: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  order: 1 !important;   /* add-reaction trigger sits to the right of the pills */
+}
+.gsc-direct-reaction-button {
+  display: inline-flex !important;
+  align-items: center !important;   /* was 'baseline' in giscus base */
+  justify-content: center !important;
+  line-height: 1 !important;
+  padding: 4px 10px !important;
+  font-size: 11px !important;
+  border-radius: 999px !important;
+  border-color: var(--color-border-muted) !important;
+  gap: 4px;
+  vertical-align: middle;
+}
+.gsc-direct-reaction-button-emoji {
+  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+/* ---------- Reactions popover ----------
+   Strategy: make a WIDER ancestor (.gsc-reactions or .gsc-comment-footer)
+   the popover's containing block instead of the narrow .gsc-reactions-menu.
+   Then "left: 50%; translateX(-50%)" centers the popover horizontally in
+   that wider parent (=roughly the iframe width). Vertical stays anchored
+   below the trigger because top:100% is relative to that wider ancestor,
+   which sits at the same vertical row as the trigger. */
+
+/* Override the base position:relative on the trigger so it's no longer
+   the containing block */
+.gsc-reactions-menu {
+  position: static !important;
+}
+
+/* New containing blocks: wider than the trigger so horizontal centering
+   actually centers in the iframe */
+.gsc-comment-footer {
+  position: relative !important;
+}
+.gsc-reply-footer {
+  position: relative !important;
+}
+/* .gsc-reactions is already position:relative from the reactions block above */
+
+/* The popover itself: absolute-positioned, centered horizontally in
+   the new containing block, anchored vertically below it. */
+.gsc-reactions-popover,
+.gsc-reactions-popover.left,
+.gsc-reactions-popover.right,
+.gsc-reactions-popover.top,
+.gsc-reactions-popover.bottom {
+  position: absolute !important;
+  top: calc(100% + 4px) !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  inset-inline-start: 50% !important;
+  inset-inline-end: auto !important;
+  margin: 0 !important;
+  /* Override the base transform that uses Tailwind CSS variables */
+  --tw-translate-x: -50% !important;
+  --tw-translate-y: 0 !important;
+  --tw-scale-x: 1 !important;
+  --tw-scale-y: 1 !important;
+  --tw-rotate: 0 !important;
+  --tw-skew-x: 0 !important;
+  --tw-skew-y: 0 !important;
+  transform: translateX(-50%) !important;
+}
+.gsc-reactions-popover.open,
+.gsc-reactions-popover.open.left,
+.gsc-reactions-popover.open.right,
+.gsc-reactions-popover.open.top,
+.gsc-reactions-popover.open.bottom {
+  --tw-translate-x: -50% !important;
+  --tw-translate-y: 0 !important;
+  --tw-scale-x: 1 !important;
+  --tw-scale-y: 1 !important;
+  transform: translateX(-50%) !important;
+}
+
+/* Visual styling */
+.gsc-reactions-popover {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border: 1px solid rgba(15,23,42,.12) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 16px 40px rgba(15,23,42,.25) !important;
+  width: auto !important;
+  min-width: 200px !important;
+  padding: 6px !important;
+}
+/* Kill the speech-bubble pointer triangles */
+.gsc-reactions-popover::before,
+.gsc-reactions-popover::after,
+.gsc-reactions-popover.open::before,
+.gsc-reactions-popover.open::after,
+.gsc-reactions-popover.open.top::before,
+.gsc-reactions-popover.open.top::after,
+.gsc-reactions-popover.open.bottom::before,
+.gsc-reactions-popover.open.bottom::after {
+  display: none !important;
+  content: none !important;
+  border: 0 !important;
+}
+/* Hide the "Pick your reaction" header (first child) and its divider */
+.gsc-reactions-popover > :first-child,
+.gsc-reactions-popover > .color-border-primary {
+  display: none !important;
+}
+/* Emoji grid container — tighten it up */
+.gsc-reactions-popover > div.m-2 {
+  margin: 0 !important;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+.gsc-emoji-button {
+  border-radius: 6px !important;
+  padding: 6px !important;
+  background: transparent !important;
+  border: 0 !important;
+  cursor: pointer;
+  transition: background .12s;
+}
+.gsc-emoji-button:hover {
+  background: rgba(15,23,42,.06) !important;
+}
+
+/* ---------- Comments header (count + sort) ---------- */
+.gsc-comments {
+  padding-top: 26px !important;
+}
+.gsc-left-header,
+.gsc-right-header {
+  align-items: center !important;
+}
+.gsc-comments-count,
+h4.gsc-comments-count {
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  color: #94a3b8 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: 0 !important;
+  text-decoration: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+/* The actual "3 comments" text is inside <a class="color-text-primary underline">.
+   That .color-text-primary class is what was making it dark — override it
+   explicitly here (same specificity, !important to ensure ordering wins). */
+.gsc-comments-count a,
+.gsc-comments-count a:link,
+.gsc-comments-count a:hover,
+.gsc-comments-count a:focus,
+.gsc-comments-count a:visited,
+.gsc-comments-count a.color-text-primary,
+.gsc-comments-count .color-text-primary,
+.gsc-comments-count .underline,
+.gsc-left-header a,
+.gsc-left-header .color-text-primary {
+  text-decoration: none !important;
+  color: #94a3b8 !important;
+  font-weight: 600 !important;
+}
+
+/* Hide the global "1 reply" count next to "3 comments" */
+.gsc-replies-count,
+h4.gsc-replies-count,
+.gsc-comments-count-separator {
+  display: none !important;
+}
+
+/* Hide the upvote button — redundant with reactions */
+.gsc-upvote-button { display: none !important; }
+
+/* Hide "— powered by giscus" — it's an <em> with the giscus.app link */
+em a[href*="giscus.app"],
+em.text-sm a[href*="giscus.app"] {
+  display: none !important;
+}
+em.color-text-secondary,
+em.text-sm.color-text-secondary,
+em.color-text-secondary.text-sm {
+  display: none !important;
+}
+
+/* Sort buttons (Oldest / Newest) — smaller, vertically centered with header */
+.BtnGroup {
+  align-items: center !important;
+  vertical-align: middle !important;
+}
+.BtnGroup-item {
+  padding: 0 !important;
+  font-size: 9.5px !important;
+  border-radius: 4px !important;
+}
+.BtnGroup-item .btn,
+.BtnGroup-item button {
+  font-size: 9.5px !important;
+  padding: 1px 7px !important;
+  font-weight: 500 !important;
+  line-height: 1.5 !important;
+  text-transform: none;
+  letter-spacing: 0;
+  height: auto !important;
+  min-height: 0 !important;
+  color: #64748b !important;
+}
+/* Selected state — light Optro blue (not gray, so it doesn't read as disabled) */
+.BtnGroup-item--selected .btn,
+.BtnGroup-item.BtnGroup-item--selected .btn,
+.BtnGroup-item--selected .btn:hover {
+  background: rgba(37,99,235,.10) !important;
+  color: #1d4ed8 !important;
+  font-weight: 600 !important;
+}
+
+/* ---------- Comments: flatten the box around each comment ---------- */
+/* The visible box is on the INNER child div with utility classes
+   (color-bg-primary rounded-md border). Kill those. */
+.gsc-comment > div {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+.gsc-comment {
+  margin-top: 0 !important;
+  padding: 4px 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  /* no horizontal divider between comments — visual breathing room only */
+}
+
+/* Hide the "1 reply" / "N replies" indicator */
+.gsc-comment-replies-count { display: none !important; }
+
+/* Hide the upvote button? — keep it; only redundant with reactions */
+/* (left in for now; can hide later if you want) */
+
+/* ---------- Comment header (avatar, name, timestamp) ---------- */
+/* Zero out giscus's default 1rem horizontal padding so header, content,
+   and footer all align at the same left edge of the comment wrapper. */
+.gsc-comment-header,
+.gsc-reply-header {
+  padding: 0 0 6px 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  margin: 0 !important;
+}
+.gsc-comment-content,
+.gsc-reply-content {
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+}
+.gsc-comment-footer,
+.gsc-reply-footer {
+  padding: 0 !important;
+  margin: 6px 0 0 0 !important;
+}
+.gsc-comment-reactions,
+.gsc-reply-reactions {
+  margin-inline-start: 0 !important;
+  margin-left: 0 !important;
+  padding: 0 !important;
+  justify-content: flex-start !important;
+}
+.gsc-comment-author {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--color-fg-default) !important;
+}
+.gsc-comment-author:hover { text-decoration: underline; }
+
+.gsc-comment-edited,
+.gsc-reply-edited,
+.gsc-comment-header time,
+.gsc-comment-header a:not(.gsc-comment-author):not(.gsc-comment-author-avatar) {
+  text-decoration: none !important;
+  color: var(--color-fg-subtle) !important;
+  font-size: 11px !important;
+  font-weight: 400 !important;
+}
+.gsc-comment-edited:hover,
+.gsc-reply-edited:hover {
+  text-decoration: none !important;
+}
+
+/* Avatars */
+.gsc-comment-author-avatar img,
+.gsc-reply-author-avatar img {
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 50%;
+}
+.gsc-reply .gsc-comment-author-avatar img,
+.gsc-reply-author-avatar img {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+.gsc-comment-content {
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+/* ---------- Replies: no inset bg, no box, just a left guide line ---------- */
+.gsc-replies {
+  background: transparent !important;
+  border: 0 !important;
+  padding: 4px 0 0 22px !important;
+  margin-top: 4px;
+  position: relative;
+  border-radius: 0 !important;
+}
+.gsc-replies::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 4px;
+  bottom: 4px;
+  width: 1px;
+  background: var(--color-border-muted);
+}
+.gsc-reply {
+  padding: 8px 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+.gsc-tl-line { display: none; }  /* horizontal divider that giscus draws between replies */
+
+/* ---------- Composer: hide tabs + toolbar, simplify ---------- */
+.gsc-comment-box-tabs { display: none !important; }
+.gsc-comment-box-md-toolbar { display: none !important; }
+.gsc-comment-box-textarea-extras { display: none !important; }
+
+/* Main composer (not a reply) — keep a soft outline */
+.gsc-comment-box:not(.gsc-comment-box-is-reply) {
+  border: 1px solid var(--color-border-default) !important;
+  border-radius: 10px !important;
+  background: rgba(255,255,255,.55) !important;
+  margin-top: 12px !important;
+  overflow: hidden;
+}
+.gsc-comment-box:not(.gsc-comment-box-is-reply) .gsc-comment-box-write {
+  border: 0 !important;
+  background: transparent !important;
+}
+.gsc-comment-box:not(.gsc-comment-box-is-reply) .gsc-comment-box-textarea {
+  border: 0 !important;
+  background: transparent !important;
+  padding: 12px 14px !important;
+  font-size: 13px !important;
+}
+.gsc-comment-box:not(.gsc-comment-box-is-reply) .gsc-comment-box-bottom {
+  border-top: 1px solid var(--color-border-muted) !important;
+  background: transparent !important;
+  padding: 6px 8px !important;
+}
+
+/* Reply composer (.gsc-reply-box wraps a .gsc-comment-box.gsc-comment-box-is-reply) */
+.gsc-reply-box {
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+.gsc-comment-box.gsc-comment-box-is-reply {
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  margin-top: 6px !important;
+}
+.gsc-comment-box.gsc-comment-box-is-reply .gsc-comment-box-write,
+.gsc-comment-box.gsc-comment-box-is-reply .gsc-comment-box-main {
+  background: transparent !important;
+  border: 0 !important;
+}
+.gsc-comment-box.gsc-comment-box-is-reply .gsc-comment-box-textarea {
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--color-border-muted) !important;
+  padding: 6px 2px !important;
+  border-radius: 0 !important;
+  font-size: 13px !important;
+}
+.gsc-comment-box.gsc-comment-box-is-reply .gsc-comment-box-bottom {
+  background: transparent !important;
+  border: 0 !important;
+  padding: 4px 0 !important;
+}
+
+/* All buttons in composer area — our radius */
+.gsc-comment-box-buttons .btn,
+.gsc-comment-box-buttons .btn-primary {
+  border-radius: 6px !important;
+}
+
+/* Pagination */
+.gsc-pagination {
+  padding-top: 10px;
+}
+.gsc-pagination-button {
+  font-size: 11px !important;
+  border-radius: 6px !important;
+}
